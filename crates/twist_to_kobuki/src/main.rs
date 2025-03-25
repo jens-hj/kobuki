@@ -52,6 +52,7 @@ async fn main() -> Result<()> {
         poll.poll(&mut events, None).unwrap();
 
         for event in events.iter() {
+            println!("Received event: {:?}", event);
             match event.token() {
                 Token(1) => match listener.take() {
                     Ok(Some((message, _message_info))) => {
