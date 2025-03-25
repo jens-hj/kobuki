@@ -25,8 +25,9 @@
       {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            fish
             colcon
+            rustc
+            cargo
             (
               with pkgs.rosPackages.${ros2-distribution};
               buildEnv {
