@@ -3,6 +3,7 @@ version = "0.1.0"
 edition = "2024"
 
 [workspace]
+resolver = "2"
 members = ["crates/twist_to_kobuki"]
 
 [workspace.dependencies]

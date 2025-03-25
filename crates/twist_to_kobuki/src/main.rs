@@ -31,6 +31,12 @@ struct Twist {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Set up Kobuki
+    // let port = tokio_serial::new("/dev/kobuki", 115200)
+    //     .timeout(Duration::from_millis(1024))
+    //     .open_native_async()?;
+    // let serial = SerialPortHandler::new(port);
+
     // Set up the ROS2 subscriber node
     let mut node = create_node();
     let qos_profile = create_qos();
@@ -45,9 +51,10 @@ async fn main() -> Result<()> {
 
     let poll = Poll::new().unwrap();
 
-    let mut events = Events::with_capacity(8);
-    let listener = listener.unwrap();
+    poll.register(&listener, Token(1), Ready::readable(), PollOpt::edge())
+        .unwrap();
 
+    let mut events = Events::with_capacity(8);
     loop {
         poll.poll(&mut events, None).unwrap();
 
