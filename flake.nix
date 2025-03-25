@@ -33,6 +33,7 @@
               buildEnv {
                 paths = [
                   ros-core
+                  turtlesim
                   # ... other ROS packages
                 ];
               }
