@@ -1,8 +1,14 @@
-[package]
+[workspace.package]
 name = "kobuki"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[workspace]
+members = ["crates/keyboard_to_twist", "crates/twist_to_kobuki"]
+
+[workspace.dependencies]
 rclrs = { git = "https://github.com/ros2-rust/ros2_rust.git", tag = "0.4.1" }
 kobuki-interface = { git = "https://github.com/rust-aarhus/kobuki-interface.git", branch = "main" }
+anyhow = "1.0.97"
+tokio = "1.44.1"
+tokio-serial = "5.4.5"

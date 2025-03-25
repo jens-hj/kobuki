@@ -1,0 +1,11 @@
+[package]
+name = "twist_to_kobuki"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rclrs.workspace = true
+kobuki-interface.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+tokio-serial.workspace = true
