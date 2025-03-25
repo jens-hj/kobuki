@@ -14,6 +14,20 @@ use ros2_client::{
         policy::{self, Deadline, Lifespan},
     },
 };
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Vector3 {
+    x: f64,
+    y: f64,
+    z: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Twist {
+    linear: Vector3,
+    angular: Vector3,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -22,12 +36,12 @@ async fn main() -> Result<()> {
     let qos_profile = create_qos();
     let topic = node
         .create_topic(
-            &Name::new("/", "kobuki/move").unwrap(),
+            &Name::new("/turtle1", "cmd_vel").unwrap(),
             MessageTypeName::new("geometry_msgs", "Twist"),
             &qos_profile,
         )
         .unwrap();
-    let listener = node.create_subscription::<String>(&topic, Some(qos_profile));
+    let listener = node.create_subscription::<Twist>(&topic, Some(qos_profile));
 
     let poll = Poll::new().unwrap();
 
@@ -41,8 +55,15 @@ async fn main() -> Result<()> {
             match event.token() {
                 Token(1) => match listener.take() {
                     Ok(Some((message, _message_info))) => {
-                        let l = message.len();
-                        println!("message len={} : {:?}", l, &message[..min(l, 50)]);
+                        println!(
+                            "Received twist message: linear=({}, {}, {}), angular=({}, {}, {})",
+                            message.linear.x,
+                            message.linear.y,
+                            message.linear.z,
+                            message.angular.x,
+                            message.angular.y,
+                            message.angular.z
+                        );
                     }
                     Ok(None) => println!("No message?!"),
                     Err(e) => {
