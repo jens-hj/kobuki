@@ -1,0 +1,9 @@
+[package]
+name = "msg_build_runner"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+
+[build-dependencies]
+ros_msg = { path = "../ros_msg" }

@@ -1,3 +1,4 @@
 /target
 .DS_Store
 **/.DS_Store
+/crates/msg_build_runner/definition_target/output/*.rs

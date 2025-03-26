@@ -313,6 +313,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
 
 [[package]]
+name = "direct_controller"
+version = "0.1.0"
+
+[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -789,6 +793,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "msg_build_runner"
+version = "0.1.0"
+dependencies = [
+ "ros_msg",
+]
+
+[[package]]
 name = "neli"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1043,6 +1054,14 @@ dependencies = [
  "tracing",
  "uuid",
  "widestring",
+]
+
+[[package]]
+name = "ros_msg"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

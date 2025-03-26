@@ -4,7 +4,7 @@ edition = "2024"
 
 [workspace]
 resolver = "2"
-members = ["crates/twist_to_kobuki"]
+members = [ "crates/direct_controller", "crates/msg_build_runner", "crates/ros_msg","crates/twist_to_kobuki"]
 
 [workspace.dependencies]
 kobuki-interface = { git = "https://github.com/rust-aarhus/kobuki-interface.git", branch = "main" }
