@@ -1,36 +1,28 @@
-use std::cmp::min;
+use std::io::stdout;
 
 use anyhow::Result;
-use kobuki_interface::{
-    serial_port::SerialPortHandler,
-    tx::{ByteStream, commands},
-};
+// use kobuki_interface::{
+//     serial_port::SerialPortHandler,
+//     tx::{ByteStream, commands},
+// };
 
+use crossterm::{
+    cursor::{Hide, MoveTo},
+    execute,
+    style::Print,
+    terminal::{Clear, ClearType, EnterAlternateScreen},
+};
+use geometry_msgs::Twist;
 use mio::{Events, Poll, PollOpt, Ready, Token};
-use ros2_client::{
-    Context, MessageTypeName, Name, Node, NodeName, NodeOptions,
-    ros2::{
-        Duration, QosPolicies, QosPolicyBuilder,
-        policy::{self, Deadline, Lifespan},
-    },
-};
-use serde::{Deserialize, Serialize};
+use ros2_client::{MessageTypeName, Name};
+use ros2_utils::{create_node, create_qos};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Vector3 {
-    x: f64,
-    y: f64,
-    z: f64,
-}
+fn main() -> Result<()> {
+    // Print with crossterm
+    let mut stdout = stdout();
+    execute!(stdout, EnterAlternateScreen, Hide)?;
+    execute!(stdout, MoveTo(0, 0), Print("Latest twist message:\n"))?;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Twist {
-    linear: Vector3,
-    angular: Vector3,
-}
-
-#[tokio::main]
-async fn main() -> Result<()> {
     // Set up Kobuki
     // let port = tokio_serial::new("/dev/kobuki", 115200)
     //     .timeout(Duration::from_millis(1024))
@@ -42,12 +34,14 @@ async fn main() -> Result<()> {
     let qos_profile = create_qos();
     let topic = node
         .create_topic(
-            &Name::new("/turtle1", "cmd_vel").unwrap(),
+            &Name::new("/kobuki", "cmd_vel").unwrap(),
             MessageTypeName::new("geometry_msgs", "Twist"),
             &qos_profile,
         )
         .unwrap();
-    let listener = node.create_subscription::<Twist>(&topic, Some(qos_profile));
+    let listener = node
+        .create_subscription::<Twist>(&topic, Some(qos_profile))
+        .unwrap();
 
     let poll = Poll::new().unwrap();
 
@@ -59,57 +53,30 @@ async fn main() -> Result<()> {
         poll.poll(&mut events, None).unwrap();
 
         for event in events.iter() {
-            println!("Received event: {:?}", event);
             match event.token() {
                 Token(1) => match listener.take() {
                     Ok(Some((message, _message_info))) => {
-                        println!(
-                            "Received twist message: linear=({}, {}, {}), angular=({}, {}, {})",
-                            message.linear.x,
-                            message.linear.y,
-                            message.linear.z,
-                            message.angular.x,
-                            message.angular.y,
-                            message.angular.z
-                        );
+                        // Update display using crossterm
+                        execute!(
+                            stdout,
+                            MoveTo(0, 4),
+                            Clear(ClearType::FromCursorDown),
+                            Print(format!("{:?}", message))
+                        )?;
                     }
-                    Ok(None) => println!("No message?!"),
+                    Ok(None) => {
+                        execute!(stdout, MoveTo(0, 4), Clear(ClearType::FromCursorDown))?;
+                    }
                     Err(e) => {
-                        println!(">>> error with response handling, e: {:?}", e)
+                        execute!(
+                            stdout,
+                            MoveTo(0, 4),
+                            Print(format!(">>> error with response handling, e: {:?}", e))
+                        )?;
                     }
                 },
                 _ => println!(">>> Unknown poll token {:?}", event.token()),
             } // match
         } // for
     } // loop
-}
-
-fn create_qos() -> QosPolicies {
-    let service_qos: QosPolicies = {
-        QosPolicyBuilder::new()
-            .history(policy::History::KeepLast { depth: 10 })
-            .reliability(policy::Reliability::Reliable {
-                max_blocking_time: Duration::from_millis(100),
-            })
-            .durability(policy::Durability::Volatile)
-            .deadline(Deadline(Duration::INFINITE))
-            .lifespan(Lifespan {
-                duration: Duration::INFINITE,
-            })
-            .liveliness(policy::Liveliness::Automatic {
-                lease_duration: Duration::INFINITE,
-            })
-            .build()
-    };
-    service_qos
-}
-
-fn create_node() -> Node {
-    let context = Context::new().unwrap();
-    context
-        .new_node(
-            NodeName::new("/rustdds", "rustdds_listener").unwrap(),
-            NodeOptions::new().enable_rosout(true),
-        )
-        .unwrap()
 }

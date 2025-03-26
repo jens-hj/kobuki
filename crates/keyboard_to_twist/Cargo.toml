@@ -1,17 +1,12 @@
 [package]
-name = "twist_to_kobuki"
+name = "keyboard_to_twist"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
-# Internal crates
 ros2_utils.workspace = true
 geometry_msgs.workspace = true
-
-# Third party crates
-kobuki-interface.workspace = true
 ros2-client.workspace = true
-mio.workspace = true
-mio-extras.workspace = true
+device_query.workspace = true
 crossterm.workspace = true
-anyhow.workspace = true
+libc = "0.2"

@@ -1,0 +1,7 @@
+[package]
+name = "geometry_msgs"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
